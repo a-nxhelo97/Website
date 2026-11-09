@@ -24,86 +24,21 @@
     cursor: pointer;
   }
   #openBtn:hover { background: #1d4ed8; }
-
-  /* Popup */
-  #overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.5);
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  #overlay.show { display: flex; }
-  #popup {
-    background: #fff;
-    width: 100%;
-    max-width: 640px;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.3);
-  }
-  #popup h2 { margin: 0 0 12px; }
-  #closeBtn {
-    float: right;
-    border: none;
-    background: none;
-    font-size: 24px;
-    cursor: pointer;
-  }
-
-  /* The highlighted box where your code goes */
-  #code-slot {
-    min-height: 200px;
-    border: 3px dashed #f59e0b;
-    background: #fffbeb;
-    border-radius: 8px;
-    padding: 16px;
-  }
-  #code-slot .hint {
-    color: #b45309;
-    font-weight: bold;
-    text-align: center;
-  }
 </style>
 </head>
 <body>
 
   <button id="openBtn">Click Me</button>
 
-  <div id="overlay">
-    <div id="popup">
-      <button id="closeBtn">&times;</button>
-      <h2>Popup</h2>
-
-      <!-- ▼▼▼▼▼▼▼▼▼▼▼▼ PUT YOUR HTML / CODE HERE ▼▼▼▼▼▼▼▼▼▼▼▼ -->
-      <div id="code-slot">
-        <script type="text/javascript">
-    var wqYOt_AiP_qFrgMc={"it":4298655,"key":"0ffa9"};
-</script>
-<script src="https://d18k3i06xdslhs.cloudfront.net/1e76438.js"></script>
-
-
-      </div>
-      <!-- ▲▲▲▲▲▲▲▲▲▲▲▲ END OF YOUR HTML / CODE AREA ▲▲▲▲▲▲▲▲▲▲▲▲ -->
-
-    </div>
-  </div>
-
 <script>
-  const overlay = document.getElementById('overlay');
+  // ▼▼▼▼▼▼▼▼▼▼▼▼ PUT YOUR URL HERE (between the quotes) ▼▼▼▼▼▼▼▼▼▼▼▼
+  const URL_TO_OPEN = "https://your-deployment-url.com/ece4a80";
+  // ▲▲▲▲▲▲▲▲▲▲▲▲ END OF URL AREA ▲▲▲▲▲▲▲▲▲▲▲▲
+
   document.getElementById('openBtn').onclick = () => {
-    overlay.classList.add('show');
-
-    // ▼▼▼▼▼▼ PUT YOUR JAVASCRIPT HERE (runs when the popup opens) ▼▼▼▼▼▼
-
-
-
-    // ▲▲▲▲▲▲ END OF YOUR JAVASCRIPT AREA ▲▲▲▲▲▲
+    window.open(URL_TO_OPEN, '_blank');   // opens in a new tab
+    // To open in the same tab instead, use: window.location.href = URL_TO_OPEN;
   };
-  document.getElementById('closeBtn').onclick = () => overlay.classList.remove('show');
-  overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove('show'); };
 </script>
 </body>
 </html>

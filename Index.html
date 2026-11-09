@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LuxeDrop Giveaways</title>
+<style>
+  :root{--gold:#f5c76a;--pink:#ff4d9d;--blue:#4dc3ff;--bg:#0a0a14;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:#fff;overflow-x:hidden;min-height:100vh}
+  #bg{position:fixed;inset:0;z-index:-2;background:linear-gradient(120deg,#0a0a14,#1a0f2e,#0b1b2e,#2a0f22);background-size:400% 400%;animation:flow 18s ease infinite}
+  @keyframes flow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  canvas#fx{position:fixed;inset:0;z-index:-1}
+
+  header{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 5vw;backdrop-filter:blur(14px);background:rgba(10,10,20,.55);border-bottom:1px solid rgba(255,255,255,.08)}
+  .logo{font-weight:800;font-size:1.3rem;letter-spacing:.5px;background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  #signin{cursor:pointer;border:0;padding:10px 24px;border-radius:30px;font-weight:700;color:#111;background:linear-gradient(90deg,var(--gold),#ffe29a);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 0 0 rgba(245,199,106,.6);animation:pulse 2.5s infinite}
+  #signin:hover{transform:translateY(-2px) scale(1.05)}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(245,199,106,.55)}70%{box-shadow:0 0 0 14px rgba(245,199,106,0)}100%{box-shadow:0 0 0 0 rgba(245,199,106,0)}}
+
+  .hero{text-align:center;padding:12vh 6vw 6vh}
+  .hero h1{font-size:clamp(2.2rem,7vw,5rem);line-height:1.05;font-weight:900}
+  .grad{background:linear-gradient(90deg,var(--gold),var(--pink),var(--blue),var(--gold));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:text 6s linear infinite}
+  @keyframes text{to{background-position:300% 0}}
+  .hero p{margin:20px auto 0;max-width:560px;color:#c9c9dd;font-size:1.1rem}
+  .cta{display:inline-block;margin-top:30px;padding:14px 34px;border-radius:40px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;font-weight:700;transition:.3s}
+  .cta:hover{background:var(--gold);color:#111;transform:translateY(-3px);box-shadow:0 10px 30px rgba(245,199,106,.35)}
+
+  h2.title{text-align:center;font-size:2rem;margin:40px 0 30px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:26px;padding:0 5vw 80px;max-width:1200px;margin:auto;perspective:1000px}
+  .card{position:relative;padding:28px;border-radius:22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);transition:transform .15s,box-shadow .3s;transform-style:preserve-3d;opacity:0;translate:0 40px;overflow:hidden}
+  .card.show{opacity:1;translate:0 0;transition:opacity .8s,translate .8s,transform .15s}
+  .card:hover{box-shadow:0 20px 50px rgba(255,77,157,.25)}
+  .card::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.25),transparent);transform:skewX(-20deg);transition:left .8s}
+  .card:hover::after{left:140%}
+  .emoji{font-size:4.5rem;text-align:center;animation:float 4s ease-in-out infinite;filter:drop-shadow(0 10px 18px rgba(0,0,0,.5))}
+  @keyframes float{50%{transform:translateY(-12px) rotate(4deg)}}
+  .card h3{margin:14px 0 4px;font-size:1.25rem}
+  .value{color:var(--gold);font-weight:800;font-size:1.1rem}
+  .timer{margin:14px 0;font-family:ui-monospace,monospace;color:#9fe3ff;font-size:.95rem}
+  .enter{width:100%;padding:12px;border:0;border-radius:14px;font-weight:700;cursor:pointer;color:#fff;background:linear-gradient(90deg,var(--pink),#8a4dff);transition:.25s}
+  .enter:hover{filter:brightness(1.2);transform:scale(1.03)}
+  .tag{position:absolute;top:14px;right:14px;font-size:.7rem;background:var(--pink);padding:4px 10px;border-radius:20px;font-weight:700}
+
+  footer{text-align:center;padding:30px;color:#777;font-size:.85rem}
+
+  /* modal */
+  #overlay{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(6px)}
+  #overlay.open{display:flex;animation:fade .25s}
+  @keyframes fade{from{opacity:0}}
+  .modal{width:min(520px,92vw);max-height:85vh;overflow:auto;padding:26px;border-radius:22px;background:#141428;border:1px solid rgba(245,199,106,.4);box-shadow:0 0 60px rgba(245,199,106,.2);animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+  @keyframes pop{from{transform:scale(.7);opacity:0}}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .close{background:none;border:0;color:#fff;font-size:1.6rem;cursor:pointer;transition:.2s}
+  .close:hover{color:var(--pink);transform:rotate(90deg)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}
+  th{color:var(--gold);font-size:.85rem;text-transform:uppercase;letter-spacing:1px}
+  td.code{font-family:ui-monospace,monospace;color:#9fe3ff}
+  tr:hover td{background:rgba(255,255,255,.04)}
+  #toast{position:fixed;bottom:30px;left:50%;transform:translate(-50%,100px);background:#222;border:1px solid var(--gold);padding:12px 22px;border-radius:30px;transition:.4s;z-index:60}
+  #toast.on{transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<canvas id="fx"></canvas>
+
+<header>
+  <div class="logo">✦ LuxeDrop</div>
+  <button id="signin">Sign in</button>
+</header>
+
+<section class="hero">
+  <h1>Win <span class="grad">Luxury</span><br>Without Limits</h1>
+  <p>Exclusive giveaways on premium products. Pick a prize, enter, and get your chance to win.</p>
+  <a class="cta" href="#prizes">Explore Prizes</a>
+</section>
+
+<h2 class="title" id="prizes">Current Giveaways</h2>
+<section class="grid" id="grid"></section>
+
+<footer>© LuxeDrop — demo website</footer>
+
+<!-- Sign in popup -->
+<div id="overlay">
+  <div class="modal">
+    <div class="modal-head"><h3>🔑 Your Codes</h3><button class="close" id="close">×</button></div>
+    <table>
+      <thead><tr><th>#</th><th>Prize</th><th>Code</th></tr></thead>
+      <tbody id="codes"></tbody>
+    </table>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ============ EDIT HERE: add your codes later ============ */
+const CODES = [
+  { prize: "Luxury Chronograph Watch", code: "" },
+  { prize: "Pro Gaming Laptop",        code: "" },
+  { prize: "Electric Sports Car",      code: "" },
+  // { prize: "Your prize", code: "YOUR-CODE" },
+];
+/* ========================================================= */
+
+const PRODUCTS = [
+  { e:"⌚", name:"Luxury Chronograph Watch", value:"$12,000", hrs:30 },
+  { e:"💻", name:"Pro Gaming Laptop",        value:"$4,500",  hrs:52 },
+  { e:"🏎️", name:"Electric Sports Car",      value:"$95,000", hrs:120, hot:true },
+  { e:"👜", name:"Designer Leather Handbag", value:"$7,800",  hrs:75 },
+  { e:"💎", name:"Diamond Necklace",         value:"$25,000", hrs:96 },
+  { e:"📱", name:"Flagship Smartphone",      value:"$1,600",  hrs:18 },
+];
+
+// build cards
+const grid = document.getElementById('grid');
+PRODUCTS.forEach((p,i)=>{
+  const c = document.createElement('div');
+  c.className='card';
+  c.style.transitionDelay=(i*0.1)+'s';
+  c.innerHTML=`${p.hot?'<span class="tag">HOT</span>':''}
+    <div class="emoji" style="animation-delay:${i*0.4}s">${p.e}</div>
+    <h3>${p.name}</h3>
+    <div class="value">Worth ${p.value}</div>
+    <div class="timer" data-end="${Date.now()+p.hrs*3600000}">--:--:--</div>
+    <button class="enter">Enter Giveaway</button>`;
+  grid.appendChild(c);
+
+  // 3D tilt
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+    c.style.transform=`rotateY(${x*14}deg) rotateX(${-y*14}deg) scale(1.03)`;
+  });
+  c.addEventListener('mouseleave',()=>c.style.transform='');
+  c.querySelector('.enter').onclick=()=>toast(`You entered: ${p.name} 🎉`);
+});
+
+// scroll reveal
+const io=new IntersectionObserver(es=>es.forEach(x=>x.isIntersecting&&x.target.classList.add('show')),{threshold:.15});
+document.querySelectorAll('.card').forEach(c=>io.observe(c));
+
+// countdowns
+setInterval(()=>{
+  document.querySelectorAll('.timer').forEach(t=>{
+    let s=Math.max(0,Math.floor((t.dataset.end-Date.now())/1000));
+    const h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s%3600/60)).padStart(2,'0'),sec=String(s%60).padStart(2,'0');
+    t.textContent=`⏳ ${h}:${m}:${sec}`;
+  });
+},1000);
+
+// toast
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200)}
+
+// modal + codes table
+const overlay=document.getElementById('overlay');
+document.getElementById('codes').innerHTML=CODES.map((c,i)=>
+  `<tr><td>${i+1}</td><td>${c.prize}</td><td class="code">${c.code||'—'}</td></tr>`).join('');
+document.getElementById('signin').onclick=()=>overlay.classList.add('open');
+document.getElementById('close').onclick=()=>overlay.classList.remove('open');
+overlay.onclick=e=>{if(e.target===overlay)overlay.classList.remove('open')};
+document.addEventListener('keydown',e=>e.key==='Escape'&&overlay.classList.remove('open'));
+
+// particle background
+const cv=document.getElementById('fx'),ctx=cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+resize();addEventListener('resize',resize);
+for(let i=0;i<70;i++)pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+.5,vx:(Math.random()-.5)*.4,vy:-Math.random()*.6-.1});
+let mouse={x:-999,y:-999};
+addEventListener('mousemove',e=>mouse={x:e.clientX,y:e.clientY});
+(function loop(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.y<0){p.y=H;p.x=Math.random()*W}
+    const d=Math.hypot(p.x-mouse.x,p.y-mouse.y);
+    if(d<120){p.x+=(p.x-mouse.x)/d*2;p.y+=(p.y-mouse.y)/d*2}
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,7);
+    ctx.fillStyle='rgba(245,199,106,.7)';ctx.shadowBlur=12;ctx.shadowColor='#f5c76a';ctx.fill();
+  });
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
